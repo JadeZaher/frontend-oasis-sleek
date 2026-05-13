@@ -8,18 +8,17 @@ interface ChainBadgeProps {
   className?: string
 }
 
+const chainStyles: Record<string, string> = {
+  algorand: 'border-blue-500/30 bg-blue-500/10 text-blue-400 dark:border-blue-400/30 dark:text-blue-300',
+  solana: 'border-purple-500/30 bg-purple-500/10 text-purple-400 dark:border-purple-400/30 dark:text-purple-300',
+}
+
 export function ChainBadge({ chain, className }: ChainBadgeProps) {
   const normalized = chain.toLowerCase()
-
-  const colorClass =
-    normalized === 'algorand'
-      ? 'bg-blue-100 text-blue-800 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-300'
-      : normalized === 'solana'
-        ? 'bg-purple-100 text-purple-800 hover:bg-purple-100 dark:bg-purple-900/30 dark:text-purple-300'
-        : 'bg-gray-100 text-gray-800 hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-300'
+  const style = chainStyles[normalized] ?? 'border-border bg-muted text-muted-foreground'
 
   return (
-    <Badge variant="secondary" className={cn(colorClass, className)}>
+    <Badge variant="outline" className={cn('text-[11px] font-medium', style, className)}>
       {chain}
     </Badge>
   )

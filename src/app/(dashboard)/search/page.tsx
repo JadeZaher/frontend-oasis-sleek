@@ -155,7 +155,7 @@ export default function SearchPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Search</h1>
+        <h1 className="text-lg font-semibold tracking-tight tracking-tight">Search</h1>
         <p className="text-sm text-muted-foreground">
           Search across avatars, holons, wallets, and blockchain operations
         </p>
@@ -167,7 +167,7 @@ export default function SearchPage() {
           {/* Search Form */}
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-base">Search</CardTitle>
+              <CardTitle className="text-sm">Search</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               {/* Query */}
@@ -290,7 +290,7 @@ export default function SearchPage() {
             <Card>
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-base">
+                  <CardTitle className="text-sm">
                     Results
                     <span className="ml-2 text-sm font-normal text-muted-foreground">
                       {results.totalCount} total
@@ -370,7 +370,7 @@ export default function SearchPage() {
         <div className="space-y-4">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-3">
-              <CardTitle className="text-base">Facets</CardTitle>
+              <CardTitle className="text-sm">Facets</CardTitle>
               <Button
                 size="sm"
                 variant="outline"

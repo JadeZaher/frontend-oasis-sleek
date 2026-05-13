@@ -6,135 +6,96 @@
 
 @layer base {
   :root {
-    --background: oklch(1 0 0);
-    --foreground: oklch(0.145 0 0);
-    --card: oklch(1 0 0);
-    --card-foreground: oklch(0.145 0 0);
-    --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.145 0 0);
-    --primary: oklch(0.205 0 0);
-    --primary-foreground: oklch(0.985 0 0);
-    --secondary: oklch(0.97 0 0);
-    --secondary-foreground: oklch(0.205 0 0);
-    --muted: oklch(0.97 0 0);
-    --muted-foreground: oklch(0.556 0 0);
-    --accent: oklch(0.97 0 0);
-    --accent-foreground: oklch(0.205 0 0);
-    --destructive: oklch(0.577 0.245 27.325);
-    --destructive-foreground: 210 40% 98%;
-    --border: oklch(0.922 0 0);
-    --input: oklch(0.922 0 0);
-    --ring: oklch(0.708 0 0);
+    --background: 0.985 0 0;
+    --foreground: 0.145 0 0;
+    --card: 1 0 0;
+    --card-foreground: 0.145 0 0;
+    --popover: 1 0 0;
+    --popover-foreground: 0.145 0 0;
+    --primary: 0.205 0.02 265;
+    --primary-foreground: 0.985 0 0;
+    --secondary: 0.97 0 0;
+    --secondary-foreground: 0.205 0 0;
+    --muted: 0.97 0 0;
+    --muted-foreground: 0.556 0 0;
+    --accent: 0.97 0 0;
+    --accent-foreground: 0.205 0 0;
+    --destructive: 0.577 0.245 27.325;
+    --destructive-foreground: 0.985 0 0;
+    --border: 0.922 0 0;
+    --input: 0.922 0 0;
+    --ring: 0.708 0.02 265;
     --radius: 0.625rem;
-    --chart-1: oklch(0.87 0 0);
-    --chart-2: oklch(0.556 0 0);
-    --chart-3: oklch(0.439 0 0);
-    --chart-4: oklch(0.371 0 0);
-    --chart-5: oklch(0.269 0 0);
-    --sidebar: oklch(0.985 0 0);
-    --sidebar-foreground: oklch(0.145 0 0);
-    --sidebar-primary: oklch(0.205 0 0);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.97 0 0);
-    --sidebar-accent-foreground: oklch(0.205 0 0);
-    --sidebar-border: oklch(0.922 0 0);
-    --sidebar-ring: oklch(0.708 0 0);
+    --chart-1: 0.6 0.18 265;
+    --chart-2: 0.6 0.18 160;
+    --chart-3: 0.6 0.18 40;
+    --chart-4: 0.6 0.18 300;
+    --chart-5: 0.6 0.18 80;
+    --sidebar: 0.985 0 0;
+    --sidebar-foreground: 0.145 0 0;
+    --sidebar-primary: 0.205 0.02 265;
+    --sidebar-primary-foreground: 0.985 0 0;
+    --sidebar-accent: 0.97 0 0;
+    --sidebar-accent-foreground: 0.205 0 0;
+    --sidebar-border: 0.922 0 0;
+    --sidebar-ring: 0.708 0.02 265;
   }
 
   .dark {
-    --background: oklch(0.145 0 0);
-    --foreground: oklch(0.985 0 0);
-    --card: oklch(0.205 0 0);
-    --card-foreground: oklch(0.985 0 0);
-    --popover: oklch(0.205 0 0);
-    --popover-foreground: oklch(0.985 0 0);
-    --primary: oklch(0.922 0 0);
-    --primary-foreground: oklch(0.205 0 0);
-    --secondary: oklch(0.269 0 0);
-    --secondary-foreground: oklch(0.985 0 0);
-    --muted: oklch(0.269 0 0);
-    --muted-foreground: oklch(0.708 0 0);
-    --accent: oklch(0.269 0 0);
-    --accent-foreground: oklch(0.985 0 0);
-    --destructive: oklch(0.704 0.191 22.216);
-    --destructive-foreground: 210 40% 98%;
-    --border: oklch(1 0 0 / 10%);
-    --input: oklch(1 0 0 / 15%);
-    --ring: oklch(0.556 0 0);
-    --chart-1: oklch(0.87 0 0);
-    --chart-2: oklch(0.556 0 0);
-    --chart-3: oklch(0.439 0 0);
-    --chart-4: oklch(0.371 0 0);
-    --chart-5: oklch(0.269 0 0);
-    --sidebar: oklch(0.205 0 0);
-    --sidebar-foreground: oklch(0.985 0 0);
-    --sidebar-primary: oklch(0.488 0.243 264.376);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.269 0 0);
-    --sidebar-accent-foreground: oklch(0.985 0 0);
-    --sidebar-border: oklch(1 0 0 / 10%);
-    --sidebar-ring: oklch(0.556 0 0);
+    --background: 0.115 0.005 265;
+    --foreground: 0.94 0 0;
+    --card: 0.15 0.005 265;
+    --card-foreground: 0.94 0 0;
+    --popover: 0.15 0.005 265;
+    --popover-foreground: 0.94 0 0;
+    --primary: 0.72 0.16 255;
+    --primary-foreground: 0.13 0.02 265;
+    --secondary: 0.2 0.005 265;
+    --secondary-foreground: 0.94 0 0;
+    --muted: 0.2 0.005 265;
+    --muted-foreground: 0.6 0 0;
+    --accent: 0.2 0.005 265;
+    --accent-foreground: 0.94 0 0;
+    --destructive: 0.65 0.22 25;
+    --destructive-foreground: 0.94 0 0;
+    --border: 0.22 0.005 265;
+    --input: 0.22 0.005 265;
+    --ring: 0.72 0.16 255;
+    --chart-1: 0.72 0.16 255;
+    --chart-2: 0.65 0.18 160;
+    --chart-3: 0.7 0.18 40;
+    --chart-4: 0.65 0.18 300;
+    --chart-5: 0.65 0.18 80;
+    --sidebar: 0.13 0.005 265;
+    --sidebar-foreground: 0.94 0 0;
+    --sidebar-primary: 0.72 0.16 255;
+    --sidebar-primary-foreground: 0.13 0.02 265;
+    --sidebar-accent: 0.2 0.005 265;
+    --sidebar-accent-foreground: 0.94 0 0;
+    --sidebar-border: 0.2 0.005 265;
+    --sidebar-ring: 0.72 0.16 255;
   }
+
   .theme {
     --font-heading: var(--font-sans);
     --font-sans: var(--font-sans);
   }
+
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
+
   html {
     @apply font-sans;
   }
 }
 
-/* Custom styles for blockchain interface */
-.blockchain-card {
-  @apply bg-card border border-border rounded-lg p-6 shadow-sm;
-}
-
-.blockchain-input {
-  @apply bg-background border border-input rounded-md px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
-}
-
-.blockchain-button {
-  @apply inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2;
-}
-
-.blockchain-button-secondary {
-  @apply inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-secondary text-secondary-foreground hover:bg-secondary/80 h-10 px-4 py-2;
-}
-
-.blockchain-destructive {
-  @apply inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-destructive text-destructive-foreground hover:bg-destructive/80 h-10 px-4 py-2;
-}
-
-.blockchain-loading {
-  @apply animate-spin rounded-full h-4 w-4 border-b-2 border-primary;
-}
-
-.transaction-status-pending {
-  @apply text-yellow-600 bg-yellow-50 border-yellow-200;
-}
-
-.transaction-status-success {
-  @apply text-green-600 bg-green-50 border-green-200;
-}
-
-.transaction-status-failed {
-  @apply text-red-600 bg-red-50 border-red-200;
-}
-
-.wallet-connected {
-  @apply bg-green-50 text-green-700 border-green-200;
-}
-
-.wallet-disconnected {
-  @apply bg-gray-50 text-gray-700 border-gray-200;
-}
-
-.blockchain-tag {
-  @apply bg-blue-50 text-blue-700 border border-blue-200 rounded-full px-2 py-1 text-xs;
-}
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: oklch(0.3 0 0 / 50%); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: oklch(0.4 0 0 / 50%); }

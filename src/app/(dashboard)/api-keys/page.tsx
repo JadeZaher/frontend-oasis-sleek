@@ -130,7 +130,7 @@ function CreateKeyForm({ onCreated }: { onCreated: (key: CreateApiKeyResponse) =
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">Create API Key</CardTitle>
+        <CardTitle className="text-sm">Create API Key</CardTitle>
         <CardDescription>Generate a new key for programmatic API access</CardDescription>
       </CardHeader>
       <CardContent>
@@ -187,7 +187,7 @@ function NewKeyDisplay({ apiKey, onDismiss }: { apiKey: CreateApiKeyResponse; on
   return (
     <Card className="border-primary/50 bg-primary/5">
       <CardHeader className="pb-2">
-        <CardTitle className="text-base">Key Created: {apiKey.name}</CardTitle>
+        <CardTitle className="text-sm">Key Created: {apiKey.name}</CardTitle>
         <CardDescription className="text-destructive font-medium">
           Copy this key now. You won't be able to see it again.
         </CardDescription>
@@ -406,7 +406,7 @@ export default function ApiKeysPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">API Keys</h1>
+        <h1 className="text-lg font-semibold tracking-tight tracking-tight">API Keys</h1>
         <p className="text-sm text-muted-foreground">
           Create and manage API keys for programmatic access to the OASIS API
         </p>

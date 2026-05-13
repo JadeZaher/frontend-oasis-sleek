@@ -1,5 +1,6 @@
 'use client'
 
+import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { useOasisAuth } from '@/lib/oasis-auth'
@@ -12,22 +13,22 @@ function ChainInfoCard({ chain }: { chain: string }) {
   const { info, loading, error } = useChainInfo(chain)
 
   if (loading) return <LoadingSkeleton />
-  if (error) return <ErrorBanner message={`${chain}: ${error}`} />
+  if (error) return <ErrorBanner message={error} />
 
   return (
     <Card>
-      <CardHeader className="pb-2">
-        <CardTitle className="flex items-center gap-2 text-base">
+      <CardHeader className="pb-3">
+        <CardTitle className="flex items-center gap-2 text-sm">
           <ChainBadge chain={chain} />
-          <span className="capitalize">{chain} Network</span>
+          <span className="capitalize">{chain}</span>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-2 text-sm">
         {info ? (
           Object.entries(info).map(([key, value]) => (
             <div key={key} className="flex justify-between gap-4">
-              <span className="text-muted-foreground capitalize">
-                {key.replace(/([A-Z])/g, ' $1').trim()}
+              <span className="text-muted-foreground">
+                {key.replace(/([A-Z])/g, ' $1').trim().toLowerCase()}
               </span>
               <span className="font-mono text-xs text-right break-all max-w-[60%]">
                 {String(value)}
@@ -48,35 +49,34 @@ export default function OverviewPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Overview</h1>
+        <h1 className="text-lg font-semibold tracking-tight">Overview</h1>
         <p className="text-sm text-muted-foreground">System status and network information</p>
       </div>
 
-      {/* Session Info */}
       <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-base">Session</CardTitle>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-sm">Session</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2 text-sm">
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Authenticated</span>
-            <span className={isAuthenticated ? 'text-green-600 dark:text-green-400' : 'text-destructive'}>
-              {isAuthenticated ? 'Yes' : 'No'}
-            </span>
+          <div className="flex items-center justify-between">
+            <span className="text-muted-foreground">Status</span>
+            <Badge variant={isAuthenticated ? 'default' : 'destructive'} className="text-[11px]">
+              {isAuthenticated ? 'Authenticated' : 'Unauthenticated'}
+            </Badge>
           </div>
           <Separator />
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Avatar ID</span>
+          <div className="flex items-center justify-between">
+            <span className="text-muted-foreground">Avatar</span>
             <span className="font-mono text-xs">{avatarId ?? '—'}</span>
           </div>
           {user && (
             <>
               <Separator />
-              <div className="flex justify-between">
+              <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">Username</span>
                 <span>{user.username}</span>
               </div>
-              <div className="flex justify-between">
+              <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">Email</span>
                 <span>{user.email}</span>
               </div>
@@ -85,11 +85,10 @@ export default function OverviewPage() {
         </CardContent>
       </Card>
 
-      {/* Chain Info Cards */}
       <div>
-        <h2 className="mb-3 text-sm font-medium text-muted-foreground uppercase tracking-wider">
+        <p className="mb-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
           Chain Status
-        </h2>
+        </p>
         <div className="grid gap-4 md:grid-cols-2">
           <ChainInfoCard chain="algorand" />
           <ChainInfoCard chain="solana" />

@@ -16,8 +16,6 @@ import {
   OasisClient,
   AlgorandProvider,
   SolanaProvider,
-  TinymanAdapter,
-  JupiterAdapter,
   isOk,
   isErr,
 } from '@oasis/wallet-sdk'
@@ -65,19 +63,19 @@ export const oasis = new OasisClient({
   chains: {
     algorand: {
       provider: new AlgorandProvider({
-        rpcUrl: process.env.NEXT_PUBLIC_ALGO_RPC || 'https://testnet-algod.algonode.cloud',
-        algodUrl: process.env.NEXT_PUBLIC_ALGO_RPC || 'https://testnet-algod.algonode.cloud',
+        rpcUrl: process.env.NEXT_PUBLIC_ALGO_RPC || 'https://testnet-api.algonode.cloud',
+        algodUrl: process.env.NEXT_PUBLIC_ALGO_RPC || 'https://testnet-api.algonode.cloud',
         network: 'testnet',
         indexerUrl: process.env.NEXT_PUBLIC_ALGO_INDEXER || 'https://testnet-idx.algonode.cloud',
       }),
-      dex: new TinymanAdapter({ network: 'testnet' }),
+
     },
     solana: {
       provider: new SolanaProvider({
         rpcUrl: process.env.NEXT_PUBLIC_SOL_RPC || 'https://api.devnet.solana.com',
         network: 'devnet',
       }),
-      dex: new JupiterAdapter(),
+
     },
   },
 })

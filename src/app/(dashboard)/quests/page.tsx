@@ -4,6 +4,7 @@ import { useState, useCallback } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
@@ -59,17 +60,17 @@ interface QuestTemplate {
 
 function statusBadge(status: string) {
   const colors: Record<string, string> = {
-    Draft: 'bg-gray-100 text-gray-800',
-    Active: 'bg-blue-100 text-blue-800',
-    Completed: 'bg-green-100 text-green-800',
-    Failed: 'bg-red-100 text-red-800',
-    Archived: 'bg-yellow-100 text-yellow-800',
-    Pending: 'bg-gray-100 text-gray-700',
-    Running: 'bg-yellow-100 text-yellow-800',
-    Succeeded: 'bg-green-100 text-green-800',
-    Skipped: 'bg-gray-50 text-gray-500',
+    Draft: 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200',
+    Active: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300',
+    Completed: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
+    Failed: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300',
+    Archived: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300',
+    Pending: 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300',
+    Running: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300',
+    Succeeded: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
+    Skipped: 'bg-muted text-muted-foreground',
   }
-  return <Badge className={colors[status] ?? 'bg-gray-100 text-gray-700'}>{status}</Badge>
+  return <Badge className={colors[status] ?? 'bg-muted text-muted-foreground'}>{status}</Badge>
 }
 
 // ─── DAG Visualizer ───
@@ -276,7 +277,7 @@ function QuestList() {
                     </div>
                     {actionResult !== null && actionResult !== undefined && (
                       <div>
-                        <Separator className="my-2" />
+                        <Separator className="2" />
                         <ResultDisplay result={actionResult} />
                       </div>
                     )}
@@ -338,7 +339,7 @@ function CreateQuest({ onCreated }: { onCreated: () => void }) {
   return (
     <Card>
       <CardHeader className="pb-3">
-        <CardTitle className="text-base">Create Quest DAG</CardTitle>
+        <CardTitle className="text-sm">Create Quest DAG</CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
         <div className="grid gap-3 sm:grid-cols-2">
@@ -353,16 +354,16 @@ function CreateQuest({ onCreated }: { onCreated: () => void }) {
         </div>
         <div className="space-y-1.5">
           <Label>Nodes (JSON array)</Label>
-          <textarea
-            className="w-full rounded border p-2 text-xs font-mono bg-muted min-h-[100px]"
+          <Textarea
+            className="min-h-[100px] font-mono text-xs"
             value={nodesJson}
             onChange={(e) => setNodesJson(e.target.value)}
           />
         </div>
         <div className="space-y-1.5">
           <Label>Edges (JSON array)</Label>
-          <textarea
-            className="w-full rounded border p-2 text-xs font-mono bg-muted min-h-[60px]"
+          <Textarea
+            className="min-h-[60px] font-mono text-xs"
             value={edgesJson}
             onChange={(e) => setEdgesJson(e.target.value)}
           />
@@ -413,7 +414,7 @@ function TemplateList() {
                   <span className="text-sm font-medium">{t.name}</span>
                   <div className="flex gap-1">
                     <Badge variant="outline" className="text-[10px]">v{t.version}</Badge>
-                    {t.isPublic && <Badge className="text-[10px] bg-green-100 text-green-800">Public</Badge>}
+                    {t.isPublic && <Badge variant="default" className="text-xs bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">Public</Badge>}
                   </div>
                 </div>
                 {t.tags.length > 0 && (
@@ -482,7 +483,7 @@ export default function QuestsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold tracking-tight">Quest DAG System</h2>
+        <h2 className="text-lg font-semibold tracking-tight tracking-tight">Quest DAG System</h2>
         <p className="text-muted-foreground">
           Build, validate, and execute directed acyclic graph workflows that orchestrate holons, NFTs, wallets, and blockchain operations.
         </p>

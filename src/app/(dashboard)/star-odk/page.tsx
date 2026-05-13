@@ -14,6 +14,14 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+import {
   Dialog,
   DialogContent,
   DialogHeader,
@@ -56,29 +64,27 @@ function OdkTable({
   }
   return (
     <div className="overflow-x-auto">
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="border-b text-left text-muted-foreground">
-            <th className="pb-2 pr-4 font-medium">Name</th>
-            <th className="pb-2 pr-4 font-medium">Description</th>
-            <th className="pb-2 pr-4 font-medium">Chain</th>
-            <th className="pb-2 font-medium">Active</th>
-          </tr>
-        </thead>
-        <tbody>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Name</TableHead>
+            <TableHead>Description</TableHead>
+            <TableHead>Chain</TableHead>
+            <TableHead>Active</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
           {items.map((item) => (
-            <tr
+            <TableRow
               key={item.id}
-              className={`cursor-pointer border-b last:border-0 transition-colors hover:bg-muted/50 ${
-                selected?.id === item.id ? 'bg-muted' : ''
-              }`}
+              className={`cursor-pointer ${selected?.id === item.id ? 'bg-muted' : ''}`}
               onClick={() => onSelect(item)}
             >
-              <td className="py-2 pr-4 font-medium">{item.name}</td>
-              <td className="py-2 pr-4 text-muted-foreground max-w-[200px] truncate">
+              <TableCell className="font-medium">{item.name}</TableCell>
+              <TableCell className="text-muted-foreground max-w-[200px] truncate">
                 {item.description ?? '—'}
-              </td>
-              <td className="py-2 pr-4">
+              </TableCell>
+              <TableCell>
                 {item.targetChain ? (
                   <Badge variant="outline" className="text-xs">
                     {item.targetChain}
@@ -86,8 +92,8 @@ function OdkTable({
                 ) : (
                   '—'
                 )}
-              </td>
-              <td className="py-2">
+              </TableCell>
+              <TableCell>
                 <Badge
                   className={`text-xs ${
                     item.isActive
@@ -97,11 +103,11 @@ function OdkTable({
                 >
                   {item.isActive ? 'Active' : 'Inactive'}
                 </Badge>
-              </td>
-            </tr>
+              </TableCell>
+            </TableRow>
           ))}
-        </tbody>
-      </table>
+        </TableBody>
+      </Table>
     </div>
   )
 }
@@ -371,7 +377,7 @@ function OdkDetail({
     <Card>
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between flex-wrap gap-2">
-          <CardTitle className="text-base">{odk.name}</CardTitle>
+          <CardTitle className="text-sm">{odk.name}</CardTitle>
           <div className="flex flex-wrap gap-2">
             <GenerateDAppDialog odkId={odk.id} />
             <Button
@@ -470,7 +476,7 @@ export default function StarOdkPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">STAR ODK</h1>
+        <h1 className="text-lg font-semibold tracking-tight tracking-tight">STAR ODK</h1>
         <p className="text-sm text-muted-foreground">
           Manage on-chain development kits and generate dApp scaffolding
         </p>
@@ -479,7 +485,7 @@ export default function StarOdkPage() {
       {/* ODK List Card */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between pb-3">
-          <CardTitle className="text-base">
+          <CardTitle className="text-sm">
             ODK List
             {odks.length > 0 && (
               <span className="ml-2 text-sm font-normal text-muted-foreground">

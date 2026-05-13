@@ -1,6 +1,17 @@
 'use client'
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from '@/components/ui/dialog'
 
 interface User {
   id: string
@@ -30,7 +41,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Check if user is already authenticated (e.g., from localStorage or session)
     const checkAuthStatus = () => {
       try {
         const storedUser = localStorage.getItem('oasis_user')
@@ -50,17 +60,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
-      // Simulate API call to backend
       await new Promise(resolve => setTimeout(resolve, 1000))
-      
-      // Mock user data - in real app, this would come from backend
+
       const mockUser: User = {
         id: '1',
         username: email.split('@')[0],
         email,
-        isAuthenticated: true
+        isAuthenticated: true,
       }
-      
+
       setUser(mockUser)
       localStorage.setItem('oasis_user', JSON.stringify(mockUser))
       return true
@@ -72,17 +80,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const register = async (username: string, email: string, password: string): Promise<boolean> => {
     try {
-      // Simulate API call to backend
       await new Promise(resolve => setTimeout(resolve, 1000))
-      
-      // Mock user data - in real app, this would come from backend
+
       const mockUser: User = {
         id: Date.now().toString(),
         username,
         email,
-        isAuthenticated: true
+        isAuthenticated: true,
       }
-      
+
       setUser(mockUser)
       localStorage.setItem('oasis_user', JSON.stringify(mockUser))
       return true
@@ -98,14 +104,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }
 
   return (
-    <AuthContext.Provider value={{
-      user,
-      isAuthenticated: !!user,
-      loading,
-      login,
-      register,
-      logout
-    }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        isAuthenticated: !!user,
+        loading,
+        login,
+        register,
+        logout,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   )
@@ -119,7 +127,8 @@ export function useAuth() {
   return context
 }
 
-// Auth Modal Component
+// ─── Auth Modal Component ────────────────────────────────────────────────────
+
 interface AuthModalProps {
   isOpen: boolean
   onClose: () => void
@@ -134,7 +143,7 @@ export function AuthModal({ isOpen, onClose, onAuthSuccess }: AuthModalProps) {
   const [confirmPassword, setConfirmPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
-  
+
   const { login, register } = useAuth()
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -144,12 +153,11 @@ export function AuthModal({ isOpen, onClose, onAuthSuccess }: AuthModalProps) {
 
     try {
       if (isLogin) {
-        // Login
         if (!email || !password) {
           setError('Email and password are required')
           return
         }
-        
+
         const success = await login(email, password)
         if (success) {
           onAuthSuccess()
@@ -158,22 +166,21 @@ export function AuthModal({ isOpen, onClose, onAuthSuccess }: AuthModalProps) {
           setError('Invalid email or password')
         }
       } else {
-        // Register
         if (!username || !email || !password) {
           setError('All fields are required')
           return
         }
-        
+
         if (password !== confirmPassword) {
           setError('Passwords do not match')
           return
         }
-        
+
         if (password.length < 6) {
           setError('Password must be at least 6 characters')
           return
         }
-        
+
         const success = await register(username, email, password)
         if (success) {
           onAuthSuccess()
@@ -189,132 +196,105 @@ export function AuthModal({ isOpen, onClose, onAuthSuccess }: AuthModalProps) {
     }
   }
 
-  const resetForm = () => {
+  const handleClose = () => {
     setUsername('')
     setEmail('')
     setPassword('')
     setConfirmPassword('')
     setError(null)
     setLoading(false)
-  }
-
-  const handleClose = () => {
-    resetForm()
     onClose()
   }
 
-  if (!isOpen) return null
-
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-gray-900">
-            {isLogin ? 'Sign In' : 'Sign Up'}
-          </h3>
-          <button 
-            onClick={handleClose}
-            className="text-gray-400 hover:text-gray-600"
-          >
-            ✕
-          </button>
-        </div>
-        
+    <Dialog open={isOpen} onOpenChange={(open) => { if (!open) handleClose() }}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>{isLogin ? 'Sign In' : 'Sign Up'}</DialogTitle>
+          <DialogDescription>
+            {isLogin ? 'Enter your credentials to continue.' : 'Create a new account to get started.'}
+          </DialogDescription>
+        </DialogHeader>
+
         <form onSubmit={handleSubmit} className="space-y-4">
           {!isLogin && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Username
-              </label>
-              <input
+            <div className="space-y-2">
+              <Label htmlFor="auth-username">Username</Label>
+              <Input
+                id="auth-username"
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                className="blockchain-input w-full"
                 placeholder="Enter your username"
                 required
               />
             </div>
           )}
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Email
-            </label>
-            <input
+
+          <div className="space-y-2">
+            <Label htmlFor="auth-email">Email</Label>
+            <Input
+              id="auth-email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="blockchain-input w-full"
               placeholder="Enter your email"
               required
             />
           </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Password
-            </label>
-            <input
+
+          <div className="space-y-2">
+            <Label htmlFor="auth-password">Password</Label>
+            <Input
+              id="auth-password"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="blockchain-input w-full"
               placeholder="Enter your password"
               required
             />
           </div>
-          
+
           {!isLogin && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Confirm Password
-              </label>
-              <input
+            <div className="space-y-2">
+              <Label htmlFor="auth-confirm-password">Confirm Password</Label>
+              <Input
+                id="auth-confirm-password"
                 type="password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className="blockchain-input w-full"
                 placeholder="Confirm your password"
                 required
               />
             </div>
           )}
-          
+
           {error && (
-            <div className="bg-red-50 border border-red-200 rounded-md p-3">
-              <p className="text-red-700 text-sm">{error}</p>
-            </div>
+            <p className="rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
+              {error}
+            </p>
           )}
-          
-          <div className="flex space-x-3">
-            <button 
-              type="submit" 
-              disabled={loading}
-              className="blockchain-button flex-1 disabled:opacity-50"
-            >
-              {loading ? 'Loading...' : isLogin ? 'Sign In' : 'Sign Up'}
-            </button>
-            <button 
-              type="button" 
-              onClick={handleClose}
-              className="blockchain-button-secondary flex-1"
-            >
+
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button type="button" variant="outline" onClick={handleClose}>
               Cancel
-            </button>
-          </div>
+            </Button>
+            <Button type="submit" disabled={loading}>
+              {loading ? 'Loading...' : isLogin ? 'Sign In' : 'Sign Up'}
+            </Button>
+          </DialogFooter>
         </form>
-        
-        <div className="mt-4 text-center">
+
+        <div className="text-center">
           <button
             type="button"
             onClick={() => setIsLogin(!isLogin)}
-            className="text-sm text-blue-600 hover:text-blue-800"
+            className="text-sm text-primary hover:underline"
           >
-            {isLogin ? "Don't have an account? Sign up" : "Already have an account? Sign in"}
+            {isLogin ? "Don't have an account? Sign up" : 'Already have an account? Sign in'}
           </button>
         </div>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   )
 }

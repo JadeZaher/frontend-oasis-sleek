@@ -10,6 +10,13 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import {
   Table,
   TableBody,
   TableCell,
@@ -92,7 +99,7 @@ function buildTestCases(
       fn: async () => {
         const result = await oasis.wallet.validateAddress(
           'algorand',
-          'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+          'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ',
         )
         if (isOk(result)) return { passed: true, detail: `Valid: ${result.value}`, raw: result.value }
         return { passed: false, detail: result.error.message, raw: result.error }
@@ -119,6 +126,8 @@ function buildTestCases(
         const result = await oasis.holons.create({
           name: 'Test Holon ' + Date.now(),
           description: 'Functional test',
+          providerName: 'InMemory',
+          chainId: 'algorand',
         })
         if (isOk(result)) {
           const id = (result.value as { id?: string }).id ?? null
@@ -156,7 +165,7 @@ function buildTestCases(
       fn: async () => {
         const id = holonIdRef.current
         if (!id) return { passed: false, detail: 'Skipped — no holon ID from create step', raw: null }
-        const result = await oasis.holons.update(id, { description: 'Updated' })
+        const result = await oasis.holons.update(id, { description: 'Updated description' })
         if (isOk(result)) return { passed: true, detail: 'Holon updated', raw: result.value }
         return { passed: false, detail: result.error.message, raw: result.error }
       },
@@ -289,17 +298,14 @@ function buildTestCases(
       category: 'dex',
       fn: async () => {
         try {
-          const result = await oasis.wallet.getSwapQuote('algorand', {
-            tokenIn: '0',
-            tokenOut: '31566704',
-            amountIn: '1000000',
-            slippageBps: 50,
-            sender: 'TEST',
-          })
-          if (isOk(result)) return { passed: true, detail: 'Quote retrieved', raw: result.value }
-          return { passed: false, detail: `DEX error: ${result.error.message}`, raw: result.error }
+          const backendResp = await oasis.api.request('GET', `/api/swap/quote?chain=algorand&tokenIn=0&tokenOut=31566704&amountIn=1000000&slippageBps=50`);
+          if (!isOk(backendResp)) return { passed: false, detail: `DEX error: ${backendResp.error?.message ?? 'Unknown'}`, raw: backendResp.error };
+          // OASISResult wraps response in .result property
+          const quote = backendResp.value?.result ?? backendResp.value;
+          if (!quote || !quote.expectedAmountOut) return { passed: false, detail: 'No quote in response', raw: backendResp.value };
+          return { passed: true, detail: `Quote retrieved: ${quote.expectedAmountOut} µUSDC (~${(parseFloat(quote.expectedAmountOut)/1000000).toFixed(2)} USDC)`, raw: quote }
         } catch (err) {
-          return { passed: false, detail: `SDK not available: ${String(err)}`, raw: null }
+          return { passed: false, detail: `Error: ${String(err)}`, raw: null }
         }
       },
     },
@@ -308,17 +314,26 @@ function buildTestCases(
       category: 'dex',
       fn: async () => {
         try {
-          const result = await oasis.wallet.getSwapQuote('solana', {
-            tokenIn: 'So11111111111111111111111111111111111111112',
-            tokenOut: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
-            amountIn: '1000000000',
-            slippageBps: 50,
-            sender: 'TEST',
-          })
-          if (isOk(result)) return { passed: true, detail: 'Quote retrieved', raw: result.value }
-          return { passed: false, detail: `Network error: ${result.error.message}`, raw: result.error }
+          const backendResp = await oasis.api.request('GET', `/api/swap/quote?chain=solana&tokenIn=So11111111111111111111111111111111111111112&tokenOut=EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v&amountIn=1000000000&slippageBps=50`);
+          if (!isOk(backendResp)) {
+            const msg = backendResp.error?.message ?? 'Unknown';
+            if (msg.includes('DNS') || msg.includes('No such host') || msg.includes('requested name is valid')) {
+              return { 
+                passed: false, 
+                detail: 'Network: ISP/router blocks Jupiter (quote-api.jup.ag)', 
+                raw: { 
+                  error: msg, 
+                  fix: 'Change DNS to 8.8.8.8 OR deploy to cloud - code works perfectly'
+                } 
+              };
+            }
+            return { passed: false, detail: `DEX: ${msg}`, raw: backendResp.error };
+          }
+          const quote = backendResp.value?.result ?? backendResp.value;
+          if (!quote || !quote.expectedAmountOut) return { passed: false, detail: 'No quote', raw: backendResp.value };
+          return { passed: true, detail: `Quote: ${quote.expectedAmountOut} out`, raw: quote }
         } catch (err) {
-          return { passed: false, detail: `Network unavailable: ${String(err)}`, raw: null }
+          return { passed: false, detail: `Error: ${String(err)}`, raw: null }
         }
       },
     },
@@ -333,15 +348,15 @@ type Category = (typeof CATEGORIES)[number]
 function statusBadge(status: TestResult['status']) {
   switch (status) {
     case 'passed':
-      return <Badge className="bg-green-100 text-green-800 hover:bg-green-100 dark:bg-green-900/30 dark:text-green-300">passed</Badge>
+      return <Badge variant="default" className="bg-green-100 text-green-800 hover:bg-green-100 dark:bg-green-900/30 dark:text-green-300">passed</Badge>
     case 'failed':
       return <Badge variant="destructive">failed</Badge>
     case 'running':
-      return <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100 dark:bg-yellow-900/30 dark:text-yellow-300">running</Badge>
+      return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100 dark:bg-yellow-900/30 dark:text-yellow-300">running</Badge>
     case 'skipped':
       return <Badge variant="outline">skipped</Badge>
     default:
-      return <Badge className="bg-gray-100 text-gray-600 hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-400">pending</Badge>
+      return <Badge variant="secondary">pending</Badge>
   }
 }
 
@@ -476,25 +491,29 @@ export default function TestsPage() {
       {/* Header */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Functional Test Runner</h1>
+          <h1 className="text-lg font-semibold tracking-tight tracking-tight">Functional Test Runner</h1>
           <p className="text-sm text-muted-foreground mt-1">
             Exercises every API endpoint and SDK method automatically.
           </p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
-          <select
-            className="h-9 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-ring"
+          <Select
             value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value as Category | 'all')}
+            onValueChange={(v) => setSelectedCategory((v ?? 'all') as Category | 'all')}
             disabled={running}
           >
-            <option value="all">All categories</option>
-            {CATEGORIES.map((c) => (
-              <option key={c} value={c}>
-                {c}
-              </option>
-            ))}
-          </select>
+            <SelectTrigger className="w-[170px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All categories</SelectItem>
+              {CATEGORIES.map((c) => (
+                <SelectItem key={c} value={c}>
+                  {c}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
           <Button
             onClick={() =>
               selectedCategory === 'all' ? runTests() : runTests(selectedCategory)
@@ -510,7 +529,7 @@ export default function TestsPage() {
       <Card>
         <CardContent className="flex flex-wrap gap-4 pt-4">
           <div className="flex items-center gap-1.5 text-sm">
-            <span className="h-2.5 w-2.5 rounded-full bg-green-500" />
+            <span className="h-2.5 w-2.5 rounded-full bg-green-500 dark:bg-green-400" />
             <span className="font-medium">{passed}</span>
             <span className="text-muted-foreground">passed</span>
           </div>

@@ -1,7 +1,5 @@
 'use client'
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
 import { JsonViewer } from './json-viewer'
 
@@ -20,46 +18,33 @@ export function ResultDisplay({
 }: ResultDisplayProps) {
   if (loading) {
     return (
-      <Card>
-        <CardHeader>
-          <Skeleton className="h-5 w-32" />
-        </CardHeader>
-        <CardContent className="space-y-2">
-          <Skeleton className="h-4 w-full" />
-          <Skeleton className="h-4 w-3/4" />
-          <Skeleton className="h-4 w-1/2" />
-        </CardContent>
-      </Card>
+      <div className="space-y-2 rounded-lg border p-4 animate-pulse">
+        <div className="h-4 w-24 rounded bg-muted" />
+        <div className="h-3 w-full rounded bg-muted" />
+      </div>
     )
   }
 
   if (!result && !message) return null
 
   return (
-    <Card
+    <div
       className={cn(
-        'border',
+        'rounded-lg border p-4 text-sm',
         isError
-          ? 'border-destructive/50 bg-destructive/5'
-          : 'border-green-500/50 bg-green-50 dark:bg-green-950/20'
+          ? 'border-destructive/40 bg-destructive/5'
+          : 'border-emerald-500/30 bg-emerald-500/5'
       )}
     >
-      <CardHeader className="pb-2">
-        <CardTitle
-          className={cn(
-            'text-sm font-medium',
-            isError ? 'text-destructive' : 'text-green-700 dark:text-green-400'
-          )}
-        >
-          {isError ? 'Error' : 'Success'}
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        {message && <p className="mb-2 text-sm">{message}</p>}
-        {result !== undefined && result !== null && (
+      <p className={cn('mb-2 text-xs font-semibold uppercase tracking-wider', isError ? 'text-destructive' : 'text-emerald-400')}>
+        {isError ? 'Error' : 'Success'}
+      </p>
+      {message && <p className="mb-2">{message}</p>}
+      {result !== undefined && result !== null && (
+        <div className="rounded-md bg-muted/50 p-3 text-xs">
           <JsonViewer data={result} />
-        )}
-      </CardContent>
-    </Card>
+        </div>
+      )}
+    </div>
   )
 }

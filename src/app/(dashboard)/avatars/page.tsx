@@ -7,26 +7,14 @@ import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
+  Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger,
 } from '@/components/ui/dialog'
 import { useOasis } from '@/lib/oasis-context'
-import { oasis, isOk, isErr } from '@/lib/oasis'
+import { oasis, isOk } from '@/lib/oasis'
 import { ResultDisplay } from '@/components/shared/result-display'
 import { JsonViewer } from '@/components/shared/json-viewer'
 
-type ProfileFields = {
-  username: string
-  email: string
-  firstName: string
-  lastName: string
-  title: string
-}
+type ProfileFields = { username: string; email: string; firstName: string; lastName: string; title: string }
 
 export default function AvatarsPage() {
   const { user, avatarId, logout, refreshProfile } = useOasis()
@@ -57,7 +45,7 @@ export default function AvatarsPage() {
       const result = await oasis.api.updateAvatar(avatarId, form)
       if (isOk(result)) {
         await refreshProfile()
-        setSaveResult({ ok: true, data: result.value, message: 'Profile updated successfully.' })
+        setSaveResult({ ok: true, data: result.value, message: 'Profile updated.' })
       } else {
         setSaveResult({ ok: false, message: result.error.message })
       }
@@ -78,99 +66,57 @@ export default function AvatarsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Avatar Profile</h1>
-        <p className="text-sm text-muted-foreground">Manage your OASIS avatar identity</p>
+        <h1 className="text-lg font-semibold tracking-tight">Avatar Profile</h1>
+        <p className="text-sm text-muted-foreground">Manage your OASIS identity</p>
       </div>
 
-      {/* Profile Card */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Profile Information</CardTitle>
-          <CardDescription>Update your avatar&apos;s details below.</CardDescription>
+          <CardTitle className="text-sm">Profile</CardTitle>
+          <CardDescription>Update your avatar details.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
               <Label htmlFor="username">Username</Label>
-              <Input
-                id="username"
-                value={form.username}
-                onChange={handleChange('username')}
-                placeholder="username"
-              />
+              <Input id="username" value={form.username} onChange={handleChange('username')} />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                value={form.email}
-                onChange={handleChange('email')}
-                placeholder="email@example.com"
-              />
+              <Input id="email" type="email" value={form.email} onChange={handleChange('email')} />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="firstName">First Name</Label>
-              <Input
-                id="firstName"
-                value={form.firstName}
-                onChange={handleChange('firstName')}
-                placeholder="First name"
-              />
+              <Input id="firstName" value={form.firstName} onChange={handleChange('firstName')} />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="lastName">Last Name</Label>
-              <Input
-                id="lastName"
-                value={form.lastName}
-                onChange={handleChange('lastName')}
-                placeholder="Last name"
-              />
+              <Input id="lastName" value={form.lastName} onChange={handleChange('lastName')} />
             </div>
             <div className="space-y-1.5 sm:col-span-2">
               <Label htmlFor="title">Title</Label>
-              <Input
-                id="title"
-                value={form.title}
-                onChange={handleChange('title')}
-                placeholder="e.g. Guardian of the OASIS"
-              />
+              <Input id="title" value={form.title} onChange={handleChange('title')} placeholder="e.g. Guardian of the OASIS" />
             </div>
           </div>
-
-          <div className="flex gap-2 pt-2">
-            <Button onClick={handleSave} disabled={saving || !avatarId}>
-              {saving ? 'Saving...' : 'Save Changes'}
-            </Button>
-          </div>
-
-          {saveResult && (
-            <ResultDisplay
-              result={saveResult.data}
-              isError={!saveResult.ok}
-              message={saveResult.message}
-            />
-          )}
+          <Button onClick={handleSave} disabled={saving || !avatarId} size="sm">
+            {saving ? 'Saving…' : 'Save changes'}
+          </Button>
+          {saveResult && <ResultDisplay result={saveResult.data} isError={!saveResult.ok} message={saveResult.message} />}
         </CardContent>
       </Card>
 
-      {/* Raw Profile JSON */}
       <Card>
-        <CardHeader className="pb-2">
+        <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-base">Raw Profile Data</CardTitle>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setJsonOpen(v => !v)}
-            >
+            <CardTitle className="text-sm">Raw Data</CardTitle>
+            <Button variant="ghost" size="sm" onClick={() => setJsonOpen(v => !v)}>
               {jsonOpen ? 'Hide' : 'Show'}
             </Button>
           </div>
         </CardHeader>
         {jsonOpen && (
           <CardContent>
-            <div className="rounded-md bg-muted p-3 text-sm font-mono">
+            <div className="rounded-md bg-muted/50 p-3 text-xs font-mono">
               <JsonViewer data={user} />
             </div>
           </CardContent>
@@ -179,28 +125,23 @@ export default function AvatarsPage() {
 
       <Separator />
 
-      {/* Danger Zone */}
-      <Card className="border-destructive/40">
+      <Card className="border-destructive/30">
         <CardHeader>
-          <CardTitle className="text-base text-destructive">Danger Zone</CardTitle>
-          <CardDescription>Permanently delete your account. This cannot be undone.</CardDescription>
+          <CardTitle className="text-sm text-destructive">Danger Zone</CardTitle>
+          <CardDescription>Permanently delete your account.</CardDescription>
         </CardHeader>
         <CardContent>
           <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-            <DialogTrigger render={<Button variant="destructive">Delete Account</Button>} />
+            <DialogTrigger render={<Button variant="destructive" size="sm">Delete account</Button>} />
             <DialogContent>
               <DialogHeader>
                 <DialogTitle>Delete Account</DialogTitle>
-                <DialogDescription>
-                  Are you sure? Your avatar and all associated data will be permanently removed.
-                </DialogDescription>
+                <DialogDescription>This cannot be undone.</DialogDescription>
               </DialogHeader>
               <DialogFooter>
-                <Button variant="outline" onClick={() => setDeleteOpen(false)} disabled={deleting}>
-                  Cancel
-                </Button>
+                <Button variant="outline" onClick={() => setDeleteOpen(false)} disabled={deleting}>Cancel</Button>
                 <Button variant="destructive" onClick={handleDelete} disabled={deleting}>
-                  {deleting ? 'Deleting...' : 'Yes, Delete'}
+                  {deleting ? 'Deleting…' : 'Delete'}
                 </Button>
               </DialogFooter>
             </DialogContent>

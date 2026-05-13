@@ -15,8 +15,8 @@ export default function Home() {
   }, [loading, isAuthenticated, router])
 
   return (
-    <div className="flex h-screen items-center justify-center">
-      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+    <div className="flex h-screen items-center justify-center bg-background">
+      <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
     </div>
   )
 }

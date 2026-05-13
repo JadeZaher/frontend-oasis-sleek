@@ -97,7 +97,7 @@ function MintAvatarNftForm({ onMinted }: { onMinted: () => void }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">Mint AvatarNFT</CardTitle>
+        <CardTitle className="text-sm">Mint AvatarNFT</CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -565,7 +565,7 @@ function AvatarNftDetail({ nft }: { nft: AvatarNft }) {
   return (
     <Card className="border-primary/30">
       <CardHeader className="pb-2">
-        <CardTitle className="flex items-center gap-2 text-base">
+        <CardTitle className="flex items-center gap-2 text-sm">
           <span>{nft.name}</span>
           <ChainBadge chain={nft.chainType} />
         </CardTitle>
@@ -762,7 +762,7 @@ export default function AvatarNftsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">AvatarNFTs</h1>
+        <h1 className="text-lg font-semibold tracking-tight tracking-tight">AvatarNFTs</h1>
         <p className="text-sm text-muted-foreground">
           Mint, bind, and verify avatar-bound NFTs
         </p>

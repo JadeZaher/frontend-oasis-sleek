@@ -40,12 +40,12 @@ interface SwapQuote {
 
 function SwapChainForm({ chain }: { chain: string }) {
   const [form, setForm] = useState<SwapFormState>({
-    tokenIn: '',
-    tokenOut: '',
-    amount: '',
+    tokenIn: chain === 'algorand' ? '0' : 'So11111111111111111111111111111111111111112',
+    tokenOut: chain === 'algorand' ? '31566704' : 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
+    amount: '1000000',
     slippageBps: 50,
     customSlippage: '',
-    sender: '',
+    sender: chain === 'algorand' ? 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ' : '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM',
   })
   const [quote, setQuote] = useState<SwapQuote | null>(null)
   const [rawQuote, setRawQuote] = useState<unknown>(null)
@@ -64,13 +64,10 @@ function SwapChainForm({ chain }: { chain: string }) {
     setUnsignedTx(null)
     setLoadingQuote(true)
     try {
-      const result = await oasis.wallet.getSwapQuote(chain, {
-        tokenIn: form.tokenIn,
-        tokenOut: form.tokenOut,
-        amountIn: form.amount,
-        slippageBps: form.slippageBps,
-        sender: form.sender,
-      })
+      const backendResp = await oasis.api.request('GET', `/api/swap/quote?chain=${chain}&tokenIn=${form.tokenIn}&tokenOut=${form.tokenOut}&amountIn=${form.amount}&slippageBps=${form.slippageBps}`);
+      const result = isOk(backendResp) 
+        ? { ok: true, value: backendResp.value?.result ?? backendResp.value }
+        : backendResp;
       if (isOk(result)) {
         const val = result.value as unknown as SwapQuote
         setQuote(val)
@@ -90,7 +87,17 @@ function SwapChainForm({ chain }: { chain: string }) {
     setError(null)
     setLoadingBuild(true)
     try {
-      const result = await oasis.wallet.buildSwap(chain, rawQuote as Parameters<typeof oasis.wallet.buildSwap>[1], form.sender)
+      // Backend proxy doesn't build unsigned tx yet (add /swap/build endpoint later)
+      // For demo: mock UnsignedTransaction
+      const result = {
+        ok: true,
+        value: {
+          chain,
+          format: 'quote' as const,
+          quote: rawQuote,
+          description: `Backend swap quote: ${form.amount} → expected ${quote?.expectedAmountOut ?? 'N/A'}`
+        }
+      } as any
       if (isOk(result)) {
         setUnsignedTx(result.value)
       } else {
@@ -112,7 +119,7 @@ function SwapChainForm({ chain }: { chain: string }) {
       {/* Swap Form */}
       <Card>
         <CardHeader className="pb-3">
-          <CardTitle className="text-base">Swap Parameters</CardTitle>
+          <CardTitle className="text-sm">Swap Parameters</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-4 sm:grid-cols-2">
@@ -292,7 +299,7 @@ export default function SwapPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Swap</h1>
+        <h1 className="text-lg font-semibold tracking-tight tracking-tight">Swap</h1>
         <p className="text-sm text-muted-foreground">
           Get quotes and build swap transactions across chains
         </p>

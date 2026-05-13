@@ -7,9 +7,8 @@ import './globals.css'
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' })
 
 export const metadata: Metadata = {
-  title: 'OASIS Sleek - Avatar NFT & Blockchain Platform',
-  description:
-    'Advanced avatar NFT platform with blockchain connectivity and holon integration',
+  title: 'OASIS Sleek',
+  description: 'Avatar NFT & Blockchain Platform',
 }
 
 export default function RootLayout({
@@ -18,8 +17,8 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
-      <body className={inter.className}>
+    <html lang="en" className="dark">
+      <body className={`${inter.variable} font-sans antialiased`}>
         <OasisProvider>
           <TooltipProvider>{children}</TooltipProvider>
         </OasisProvider>

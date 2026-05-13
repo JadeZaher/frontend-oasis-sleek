@@ -331,7 +331,7 @@ export default function BlockchainPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Blockchain</h1>
+        <h1 className="text-lg font-semibold tracking-tight tracking-tight">Blockchain</h1>
         <p className="text-sm text-muted-foreground">
           Explore balances, transactions, and token data across chains
         </p>

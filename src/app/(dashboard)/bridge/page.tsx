@@ -14,6 +14,14 @@ import {
 } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
 import { JsonViewer } from '@/components/shared/json-viewer'
 import { ResultDisplay } from '@/components/shared/result-display'
 import { ChainBadge } from '@/components/shared/chain-badge'
@@ -93,7 +101,7 @@ function RouteExplorer() {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between pb-3">
-        <CardTitle className="text-base">Route Explorer</CardTitle>
+        <CardTitle className="text-sm">Route Explorer</CardTitle>
         <Button size="sm" onClick={loadRoutes} disabled={loading}>
           {loading ? 'Loading...' : 'Load Routes'}
         </Button>
@@ -105,55 +113,55 @@ function RouteExplorer() {
         )}
         {routes.length > 0 && (
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b text-left text-muted-foreground">
-                  <th className="pb-2 pr-4 font-medium">Source</th>
-                  <th className="pb-2 pr-4 font-medium">Target</th>
-                  <th className="pb-2 pr-4 font-medium">Asset Types</th>
-                  <th className="pb-2 pr-4 font-medium">Wormhole</th>
-                  <th className="pb-2 font-medium">Modes</th>
-                </tr>
-              </thead>
-              <tbody>
-                {routes.map((route, i) => (
-                  <tr key={i} className="border-b last:border-0">
-                    <td className="py-2 pr-4">
-                      <ChainBadge chain={route.sourceChain} />
-                    </td>
-                    <td className="py-2 pr-4">
-                      <ChainBadge chain={route.targetChain} />
-                    </td>
-                    <td className="py-2 pr-4">
-                      <div className="flex flex-wrap gap-1">
-                        {(route.supportedAssetTypes ?? []).map((t) => (
-                          <Badge key={t} variant="outline" className="text-xs">
-                            {t}
-                          </Badge>
-                        ))}
-                      </div>
-                    </td>
-                    <td className="py-2 pr-4">
-                      <Badge
-                        variant={route.wormholeSupported ? 'default' : 'secondary'}
-                        className="text-xs"
-                      >
-                        {route.wormholeSupported ? 'Yes' : 'No'}
-                      </Badge>
-                    </td>
-                    <td className="py-2">
-                      <div className="flex flex-wrap gap-1">
-                        {(route.availableModes ?? []).map((m) => (
-                          <Badge key={m} variant="secondary" className="text-xs">
-                            {m}
-                          </Badge>
-                        ))}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Source</TableHead>
+                <TableHead>Target</TableHead>
+                <TableHead>Asset Types</TableHead>
+                <TableHead>Wormhole</TableHead>
+                <TableHead>Modes</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {routes.map((route, i) => (
+                <TableRow key={i}>
+                  <TableCell>
+                    <ChainBadge chain={route.sourceChain} />
+                  </TableCell>
+                  <TableCell>
+                    <ChainBadge chain={route.targetChain} />
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex flex-wrap gap-1">
+                      {(route.supportedAssetTypes ?? []).map((t) => (
+                        <Badge key={t} variant="outline" className="text-xs">
+                          {t}
+                        </Badge>
+                      ))}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <Badge
+                      variant={route.wormholeSupported ? 'default' : 'secondary'}
+                      className="text-xs"
+                    >
+                      {route.wormholeSupported ? 'Yes' : 'No'}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex flex-wrap gap-1">
+                      {(route.availableModes ?? []).map((m) => (
+                        <Badge key={m} variant="secondary" className="text-xs">
+                          {m}
+                        </Badge>
+                      ))}
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
           </div>
         )}
       </CardContent>
@@ -207,7 +215,7 @@ function InitiateBridgeForm() {
   return (
     <Card>
       <CardHeader className="pb-3">
-        <CardTitle className="text-base">Initiate Bridge</CardTitle>
+        <CardTitle className="text-sm">Initiate Bridge</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="grid gap-4 sm:grid-cols-2">
@@ -359,7 +367,7 @@ function BridgeStatusTracker() {
   return (
     <Card>
       <CardHeader className="pb-3">
-        <CardTitle className="text-base">Bridge Status Tracker</CardTitle>
+        <CardTitle className="text-sm">Bridge Status Tracker</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex gap-2">
@@ -398,7 +406,7 @@ function BridgeStatusTracker() {
                     {i < BRIDGE_STEPS.length - 1 && (
                       <div
                         className={`h-0.5 w-4 ${
-                          i < currentStep ? 'bg-green-400' : 'bg-border'
+                          i < currentStep ? 'bg-green-400 dark:bg-green-500' : 'bg-border'
                         }`}
                       />
                     )}
@@ -506,7 +514,7 @@ function BridgeHistory() {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between pb-3">
-        <CardTitle className="text-base">Bridge History</CardTitle>
+        <CardTitle className="text-sm">Bridge History</CardTitle>
         <Button size="sm" onClick={loadHistory} disabled={loading}>
           {loading ? 'Loading...' : 'Load History'}
         </Button>
@@ -518,46 +526,46 @@ function BridgeHistory() {
         )}
         {history.length > 0 && (
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b text-left text-muted-foreground">
-                  <th className="pb-2 pr-4 font-medium">ID</th>
-                  <th className="pb-2 pr-4 font-medium">Source</th>
-                  <th className="pb-2 pr-4 font-medium">Target</th>
-                  <th className="pb-2 pr-4 font-medium">Amount</th>
-                  <th className="pb-2 pr-4 font-medium">Status</th>
-                  <th className="pb-2 font-medium">Created</th>
-                </tr>
-              </thead>
-              <tbody>
-                {history.map((item) => (
-                  <tr
-                    key={item.id}
-                    className="cursor-pointer border-b last:border-0 hover:bg-muted/50 transition-colors"
-                    onClick={() => setSelected(selected?.id === item.id ? null : item)}
-                  >
-                    <td className="py-2 pr-4 font-mono text-xs">
-                      {item.id.length > 12 ? `${item.id.slice(0, 8)}…` : item.id}
-                    </td>
-                    <td className="py-2 pr-4">
-                      <ChainBadge chain={item.sourceChain} />
-                    </td>
-                    <td className="py-2 pr-4">
-                      <ChainBadge chain={item.targetChain} />
-                    </td>
-                    <td className="py-2 pr-4 font-mono">{item.amount}</td>
-                    <td className="py-2 pr-4">
-                      <Badge className={`text-xs ${statusColor(item.status)}`}>
-                        {item.status}
-                      </Badge>
-                    </td>
-                    <td className="py-2 text-xs text-muted-foreground">
-                      {new Date(item.createdAt).toLocaleDateString()}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>ID</TableHead>
+                <TableHead>Source</TableHead>
+                <TableHead>Target</TableHead>
+                <TableHead>Amount</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Created</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {history.map((item) => (
+                <TableRow
+                  key={item.id}
+                  className="cursor-pointer"
+                  onClick={() => setSelected(selected?.id === item.id ? null : item)}
+                >
+                  <TableCell className="font-mono text-xs">
+                    {item.id.length > 12 ? `${item.id.slice(0, 8)}…` : item.id}
+                  </TableCell>
+                  <TableCell>
+                    <ChainBadge chain={item.sourceChain} />
+                  </TableCell>
+                  <TableCell>
+                    <ChainBadge chain={item.targetChain} />
+                  </TableCell>
+                  <TableCell className="font-mono">{item.amount}</TableCell>
+                  <TableCell>
+                    <Badge className={`text-xs ${statusColor(item.status)}`}>
+                      {item.status}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-xs text-muted-foreground">
+                    {new Date(item.createdAt).toLocaleDateString()}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
           </div>
         )}
 
@@ -580,7 +588,7 @@ export default function BridgePage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Bridge</h1>
+        <h1 className="text-lg font-semibold tracking-tight tracking-tight">Bridge</h1>
         <p className="text-sm text-muted-foreground">
           Cross-chain asset bridging via Trusted or Wormhole modes
         </p>
