@@ -529,8 +529,8 @@ function AvatarNftDetail({ nft }: { nft: AvatarNft }) {
 
   const fetchBindings = useCallback(async () => {
     const [holonRes, walletRes] = await Promise.all([
-      oasis.api.request<BoundHolon[]>('GET', `/api/avatarnft/${nft.id}/holons`),
-      oasis.api.request<BoundWallet[]>('GET', `/api/avatarnft/${nft.id}/wallets`),
+      oasis.api.request('GET', `/api/avatarnft/${nft.id}/holons`),
+      oasis.api.request('GET', `/api/avatarnft/${nft.id}/wallets`),
     ])
     if (isOk(holonRes)) setHolons(holonRes.value)
     if (isOk(walletRes)) setWallets(walletRes.value)
@@ -682,7 +682,7 @@ function AvatarNftList({ avatarId }: { avatarId: string }) {
   const fetchNfts = useCallback(async () => {
     setLoading(true)
     setError(null)
-    const res = await oasis.api.request<AvatarNft[]>('GET', `/api/avatarnft/avatar/${avatarId}`)
+    const res = await oasis.api.request('GET', `/api/avatarnft/avatar/${avatarId}`)
     if (isOk(res)) {
       setNfts(res.value)
     } else {

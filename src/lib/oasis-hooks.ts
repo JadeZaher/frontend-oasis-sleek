@@ -3,10 +3,12 @@
 import { useState, useEffect, useCallback } from 'react'
 import { oasis, isOk, safeUnwrap } from './oasis'
 import type { BalanceInfo, HolonResult, PortfolioSummary, ChainBalance } from './oasis'
+import { useNetwork } from './network-context'
 
 // ─── useBalance ───
 
 export function useBalance(chain: string, address: string | null, tokenId?: string) {
+  const { networkKey } = useNetwork()
   const [balance, setBalance] = useState<BalanceInfo | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -22,7 +24,9 @@ export function useBalance(chain: string, address: string | null, tokenId?: stri
       setError(result.error.message)
     }
     setLoading(false)
-  }, [chain, address, tokenId])
+    // `networkKey` is a dep so balances refetch on switch AND once the
+    // backend RPC config lands (endpoints may change under the same network).
+  }, [chain, address, tokenId, networkKey])
 
   useEffect(() => { refresh() }, [refresh])
 
@@ -32,6 +36,7 @@ export function useBalance(chain: string, address: string | null, tokenId?: stri
 // ─── usePortfolio ───
 
 export function usePortfolio(avatarId: string | null) {
+  const { networkKey } = useNetwork()
   const [portfolio, setPortfolio] = useState<PortfolioSummary | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -47,7 +52,7 @@ export function usePortfolio(avatarId: string | null) {
       setError(result.error.message)
     }
     setLoading(false)
-  }, [avatarId])
+  }, [avatarId, networkKey])
 
   useEffect(() => { refresh() }, [refresh])
 
@@ -91,6 +96,7 @@ export function useHolons(filters?: {
 // ─── useChainInfo ───
 
 export function useChainInfo(chain: string) {
+  const { networkKey } = useNetwork()
   const [info, setInfo] = useState<Record<string, unknown> | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -107,7 +113,7 @@ export function useChainInfo(chain: string) {
       setLoading(false)
     }
     fetch()
-  }, [chain])
+  }, [chain, networkKey])
 
   return { info, loading, error }
 }

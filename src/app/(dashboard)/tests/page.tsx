@@ -3,6 +3,7 @@
 import { useState, useRef, useCallback, useEffect } from 'react'
 import { oasis, isOk } from '@/lib/oasis'
 import { useOasisAuth } from '@/lib/oasis-auth'
+import { useDebug } from '@/lib/debug-context'
 import { ChainBadge } from '@/components/shared/chain-badge'
 import { JsonViewer } from '@/components/shared/json-viewer'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -375,10 +376,42 @@ function initResults(tests: TestCase[]): TestResult[] {
   }))
 }
 
+/**
+ * LLM-friendly error dump. Prefers SdkError.debugString() (verbose: HTTP
+ * status, request path, and the server-side exception chain when backend
+ * debug mode is on) and falls back to the JSON snapshot otherwise.
+ */
+function buildErrorDump(results: TestResult[], failed: number, debug: boolean): string {
+  const section = results
+    .filter((r) => r.status === 'failed')
+    .map((r, i) => {
+      const raw = r.raw as { debugString?: () => string } | null | undefined
+      const verbose =
+        raw && typeof raw.debugString === 'function'
+          ? raw.debugString()
+          : JSON.stringify(r.raw, null, 2)
+      return `[${i + 1}] TEST: ${r.name} (${r.category})
+ERROR: ${r.detail}
+RAW: ${verbose}
+--------------------------------------------------`
+    })
+    .join('\n\n')
+
+  return `### BEGIN OASIS ERROR DUMP ###
+Timestamp: ${new Date().toISOString()}
+Environment: ${process.env.NODE_ENV}
+Debug Mode: ${debug ? 'on (verbose — includes server-side exception chain)' : 'OFF — enable Debug in the top nav for server stack traces'}
+Total Failed: ${failed}
+
+${section}
+### END OASIS ERROR DUMP ###`
+}
+
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function TestsPage() {
   useOasisAuth() // ensure we're in auth context; dashboard layout handles redirect
+  const { debug } = useDebug()
 
   const holonIdRef = useRef<string | null>(null)
   const walletIdRef = useRef<string | null>(null)
@@ -491,7 +524,7 @@ export default function TestsPage() {
       {/* Header */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h1 className="text-lg font-semibold tracking-tight tracking-tight">Functional Test Runner</h1>
+          <h1 className="text-lg font-semibold tracking-tight">Functional Test Runner</h1>
           <p className="text-sm text-muted-foreground mt-1">
             Exercises every API endpoint and SDK method automatically.
           </p>
@@ -523,6 +556,33 @@ export default function TestsPage() {
             {running ? 'Running…' : selectedCategory === 'all' ? 'Run All Tests' : `Run "${selectedCategory}"`}
           </Button>
         </div>
+      </div>
+
+      {/* Debug-mode notice — verbose errors depend on this being on */}
+      <div
+        className={[
+          'flex items-center gap-2 rounded-md border px-3 py-2 text-xs',
+          debug
+            ? 'border-emerald-500/30 bg-emerald-500/5 text-emerald-700 dark:text-emerald-300'
+            : 'border-amber-500/40 bg-amber-500/5 text-amber-700 dark:text-amber-300',
+        ].join(' ')}
+      >
+        <span
+          className={`inline-block size-2 rounded-full ${debug ? 'bg-emerald-500' : 'bg-amber-500'}`}
+          aria-hidden
+        />
+        {debug ? (
+          <span>
+            <strong>Debug mode is on.</strong> Failed tests capture the backend
+            exception chain and the error dump below is fully verbose.
+          </span>
+        ) : (
+          <span>
+            <strong>Debug mode is off.</strong> Error messages will be terse —
+            switch <strong>Debug: On</strong> in the top nav, then re-run for
+            full server stack traces.
+          </span>
+        )}
       </div>
 
       {/* Summary bar */}
@@ -678,6 +738,38 @@ export default function TestsPage() {
           </Card>
         )
       })}
+
+      {/* LLM-Friendly Error Log */}
+      {failed > 0 && (
+        <Card className="border-destructive/50 bg-destructive/5">
+          <CardHeader>
+            <CardTitle className="text-sm font-bold text-destructive flex items-center gap-2">
+              <span className="h-2 w-2 rounded-full bg-destructive animate-pulse" />
+              LLM-FRIENDLY ERROR LOG (v1.0)
+            </CardTitle>
+            <p className="text-xs text-muted-foreground">
+              Copy this section if you need to report these errors to an AI assistant.
+            </p>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="rounded-md bg-zinc-950 p-4 font-mono text-[10px] leading-relaxed text-zinc-300 overflow-x-auto border border-zinc-800 shadow-inner">
+              <pre className="whitespace-pre-wrap break-all">
+{buildErrorDump(results, failed, debug)}
+              </pre>
+            </div>
+            <Button 
+              size="sm" 
+              variant="outline" 
+              className="w-full text-xs h-8 border-destructive/20 hover:bg-destructive/10"
+              onClick={() => {
+                navigator.clipboard.writeText(buildErrorDump(results, failed, debug));
+              }}
+            >
+              Copy Dump to Clipboard
+            </Button>
+          </CardContent>
+        </Card>
+      )}
     </div>
   )
 }

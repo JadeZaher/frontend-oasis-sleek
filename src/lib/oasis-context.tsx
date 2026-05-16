@@ -78,47 +78,6 @@ export interface OasisState {
 const OasisContext = createContext<OasisState | undefined>(undefined)
 export { OasisContext }
 
-// ─── Direct API helpers (bypass SDK's broken token-refresh on first auth) ───
-
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
-
-/** Call /api/avatar/login directly, extract JWT + avatarId */
-async function directLogin(email: string, password: string): Promise<{ token: string; avatarId: string }> {
-  const resp = await fetch(`${API_BASE}/api/avatar/login`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, password }),
-  })
-  if (!resp.ok) {
-    const err = await resp.json().catch(() => ({}))
-    const msg = (err.message ?? err.title) || (err.errors ? Object.values(err.errors).flat().join('; ') : null) || `Login failed: HTTP ${resp.status}`
-    throw new Error(msg)
-  }
-  const data = await resp.json()
-  const token: string | undefined = data.result
-  if (!token) throw new Error('No token returned')
-  // Decode JWT payload to get avatarId
-  const parts = token.split('.')
-  if (parts.length !== 3) throw new Error('Invalid JWT')
-  const payload = parts[1]!.replace(/-/g, '+').replace(/_/g, '/')
-  const padded = payload + '='.repeat((4 - (payload.length % 4)) % 4)
-  const decoded = JSON.parse(atob(padded)) as Record<string, unknown>
-  const avatarId = (decoded.sub as string) ?? (decoded.nameid as string)
-  if (!avatarId) throw new Error('No avatarId in token')
-  return { token, avatarId }
-}
-
-/** Persist a JWT into the SDK's session manager (via localStorage + restore) */
-async function persistSession(token: string, avatarId: string) {
-  // Write directly to localStorage using the same keys the SDK uses
-  if (typeof window !== 'undefined') {
-    localStorage.setItem('oasis_token', token)
-    localStorage.setItem('oasis_avatar_id', avatarId)
-  }
-  // Tell the session manager to reload from storage
-  await oasis.session.restore()
-}
-
 // ─── Provider ───
 
 export function OasisProvider({ children }: { children: ReactNode }) {
@@ -138,15 +97,14 @@ export function OasisProvider({ children }: { children: ReactNode }) {
           if (isOk(profileResult)) {
             setUser(profileResult.value)
           } else {
-            // Profile fetch failed (e.g., 404 — avatar deleted, DB reset)
-            // Clear stale session so the UI doesn't hang showing "logged in"
-            await oasis.session.logout()
-            await oasis.session.restore()
+            // Profile fetch failed (e.g., 401 — expired, 404 — deleted)
+            // The SDK's 401 retry logic now handles refresh, but if it still fails,
+            // we should clear the session.
+            await oasis.auth.logout()
           }
         }
       } catch {
-        // Session restore failed — start fresh
-        await oasis.session.logout().catch(() => {})
+        await oasis.auth.logout().catch(() => {})
       } finally {
         setAuthLoading(false)
       }
@@ -175,52 +133,33 @@ export function OasisProvider({ children }: { children: ReactNode }) {
   }, [])
 
   /**
-   * Login using direct fetch to avoid the SDK bug where
-   * `fetchWithAuth → createRefreshCallback()` throws
-   * "No session token available" on first login attempt.
+   * Login using the SDK's auth provider.
    */
   const login = useCallback(async (email: string, password: string) => {
-    try {
-      const { token, avatarId: aid } = await directLogin(email, password)
-      await persistSession(token, aid)
+    const result = await oasis.auth.login(email, password)
+    if (isOk(result)) {
       const profileResult = await oasis.auth.getProfile()
       if (isOk(profileResult)) setUser(profileResult.value)
       return { success: true }
-    } catch (e: unknown) {
-      return { success: false, error: e instanceof Error ? e.message : 'Login failed' }
     }
+    return { success: false, error: result.error.message }
   }, [])
 
   /**
-   * Register + auto-login via direct fetch.
-   * The SDK's `register()` internally calls `login()` which hits the same
-   * token-refresh bug, so we bypass it entirely.
+   * Register + auto-login via SDK.
    */
   const register = useCallback(async (params: { username: string; email: string; password: string }) => {
-    // 1. Register
-    const regResp = await fetch(`${API_BASE}/api/avatar/register`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username: params.username, email: params.email, password: params.password }),
+    const result = await oasis.auth.register({
+      username: params.username,
+      email: params.email,
+      password: params.password,
     })
-    if (!regResp.ok) {
-      const errData = await regResp.json().catch(() => ({}))
-      const msg = (errData.message ?? errData.title) ||
-        (errData.errors ? Object.values(errData.errors).flat().join('; ') : null) ||
-        `Registration failed: HTTP ${regResp.status}`
-      return { success: false, error: String(msg) }
-    }
-
-    // 2. Login with new credentials
-    try {
-      const { token, avatarId: aid } = await directLogin(params.email, params.password)
-      await persistSession(token, aid)
+    if (isOk(result)) {
       const profileResult = await oasis.auth.getProfile()
       if (isOk(profileResult)) setUser(profileResult.value)
       return { success: true }
-    } catch (e: unknown) {
-      return { success: false, error: e instanceof Error ? e.message : 'Login after registration failed' }
     }
+    return { success: false, error: result.error.message }
   }, [])
 
   const logout = useCallback(async () => {

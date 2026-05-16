@@ -8,8 +8,8 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Separator } from '@/components/ui/separator'
+import { ChainSwitcher } from '@/components/shared/chain-switcher'
 import { ResultDisplay } from '@/components/shared/result-display'
 import { JsonViewer } from '@/components/shared/json-viewer'
 import { ChainBadge } from '@/components/shared/chain-badge'
@@ -337,23 +337,18 @@ export default function BlockchainPage() {
         </p>
       </div>
 
-      <Tabs
+      <ChainSwitcher
+        options={[
+          { value: 'algorand', label: 'Algorand' },
+          { value: 'solana', label: 'Solana' },
+        ]}
         value={selectedChain}
-        onValueChange={(v) => setSelectedChain(v as 'algorand' | 'solana')}
-      >
-        <TabsList>
-          <TabsTrigger value="algorand">Algorand</TabsTrigger>
-          <TabsTrigger value="solana">Solana</TabsTrigger>
-        </TabsList>
+        onChange={(v) => setSelectedChain(v as 'algorand' | 'solana')}
+      />
 
-        <TabsContent value="algorand" className="mt-4">
-          <ChainPanels chain="algorand" />
-        </TabsContent>
-
-        <TabsContent value="solana" className="mt-4">
-          <ChainPanels chain="solana" />
-        </TabsContent>
-      </Tabs>
+      <div className="mt-4">
+        <ChainPanels chain={selectedChain} />
+      </div>
     </div>
   )
 }

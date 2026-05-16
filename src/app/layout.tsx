@@ -1,5 +1,7 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
+import { NetworkProvider } from '@/lib/network-context'
+import { DebugProvider } from '@/lib/debug-context'
 import { OasisProvider } from '@/lib/oasis-context'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import './globals.css'
@@ -19,9 +21,13 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body className={`${inter.variable} font-sans antialiased`}>
-        <OasisProvider>
-          <TooltipProvider>{children}</TooltipProvider>
-        </OasisProvider>
+        <NetworkProvider>
+          <DebugProvider>
+            <OasisProvider>
+              <TooltipProvider>{children}</TooltipProvider>
+            </OasisProvider>
+          </DebugProvider>
+        </NetworkProvider>
       </body>
     </html>
   )

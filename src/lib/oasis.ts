@@ -14,11 +14,11 @@
 
 import {
   OasisClient,
-  AlgorandProvider,
-  SolanaProvider,
   isOk,
   isErr,
 } from '@oasis/wallet-sdk'
+import { buildChainRegistrations, readInitialNetwork } from './networks'
+import { readInitialDebug } from './debug'
 import type {
   SessionState,
   HolonResult,
@@ -57,27 +57,27 @@ const localStorageAdapter = {
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
 
+// The initial network is read (SSR-safe) from the persisted choice so the very
+// first wallet operation already targets the right network. Runtime switching
+// is handled by oasis.setNetwork() (see network-context.tsx) — the SDK rebuilds
+// every chain provider for the new network, so operations can never span
+// devnet/testnet/mainnet.
+const initialNetwork = readInitialNetwork()
+
+// Verbose SDK diagnostics: seeded from the persisted user choice (falling back
+// to "on" in any non-production build). Pairs with the backend's
+// OASIS:DebugErrors so the server's exception chain flows all the way into
+// SdkError.detail. Runtime toggling is handled by oasis.setDebug() — see
+// debug-context.tsx / the top-nav DebugSwitcher.
+const DEBUG = readInitialDebug()
+
 export const oasis = new OasisClient({
   apiUrl: API_BASE_URL,
   sessionStorage: localStorageAdapter,
-  chains: {
-    algorand: {
-      provider: new AlgorandProvider({
-        rpcUrl: process.env.NEXT_PUBLIC_ALGO_RPC || 'https://testnet-api.algonode.cloud',
-        algodUrl: process.env.NEXT_PUBLIC_ALGO_RPC || 'https://testnet-api.algonode.cloud',
-        network: 'testnet',
-        indexerUrl: process.env.NEXT_PUBLIC_ALGO_INDEXER || 'https://testnet-idx.algonode.cloud',
-      }),
-
-    },
-    solana: {
-      provider: new SolanaProvider({
-        rpcUrl: process.env.NEXT_PUBLIC_SOL_RPC || 'https://api.devnet.solana.com',
-        network: 'devnet',
-      }),
-
-    },
-  },
+  network: initialNetwork,
+  chains: buildChainRegistrations(initialNetwork),
+  chainsForNetwork: buildChainRegistrations,
+  debug: DEBUG,
 })
 
 // ─── Helper wrappers for components ───

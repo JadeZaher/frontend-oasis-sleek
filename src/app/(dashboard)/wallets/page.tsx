@@ -19,10 +19,12 @@ import { WalletTypeBadge } from '@/components/wallet-type-badge'
 import { BrowserWalletConnectDialog } from '@/components/browser-wallet-connect'
 import { PlatformWalletGenerateDialog } from '@/components/platform-wallet-generate'
 import { WalletExportDialog } from '@/components/wallet-export-dialog'
+import { WalletFundDialog } from '@/components/wallet-fund-dialog'
 import { useOasis, type WalletEntry } from '@/lib/oasis-context'
 import { usePortfolio } from '@/lib/oasis-hooks'
+import { useNetwork } from '@/lib/network-context'
 import type { ChainBalance } from '@/lib/oasis'
-import { Plus, Wallet, ExternalLink, Key, Download, Trash2, Star } from 'lucide-react'
+import { Wallet, ExternalLink, Key, Download, Trash2, Star, Coins, ShoppingCart } from 'lucide-react'
 
 function truncateAddress(addr: string, chars = 6): string {
   return addr.length <= chars * 2 + 3 ? addr : `${addr.slice(0, chars)}…${addr.slice(-chars)}`
@@ -70,16 +72,31 @@ function WalletActions({
   onSetDefault,
   onExport,
   onRemove,
+  onFund,
+  isTestLike,
   settingDefault,
 }: {
   wallet: WalletEntry
   onSetDefault: (w: WalletEntry) => void
   onExport: (w: WalletEntry) => void
   onRemove: (w: WalletEntry) => void
+  onFund: (w: WalletEntry) => void
+  isTestLike: boolean
   settingDefault: string | null
 }) {
   return (
     <div className="flex items-center justify-end gap-1">
+      <Button
+        variant="ghost"
+        size="sm"
+        className="h-7 w-7 p-0"
+        onClick={() => onFund(wallet)}
+        title={isTestLike ? 'Top up (test funds)' : 'Buy token'}
+      >
+        {isTestLike
+          ? <Coins className="h-3.5 w-3.5" />
+          : <ShoppingCart className="h-3.5 w-3.5" />}
+      </Button>
       {!wallet.isDefault && (
         <Button
           variant="ghost"
@@ -167,11 +184,13 @@ export default function WalletsPage() {
     refreshWallets: refresh, avatarId, setDefaultWallet, removeWallet,
   } = useOasis()
 
+  const { isTestLike } = useNetwork()
   const [settingDefault, setSettingDefault] = useState<string | null>(null)
   const [showBrowserConnect, setShowBrowserConnect] = useState(false)
   const [showPlatformGenerate, setShowPlatformGenerate] = useState(false)
   const [exportWalletTarget, setExportWalletTarget] = useState<WalletEntry | null>(null)
   const [removeWalletTarget, setRemoveWalletTarget] = useState<WalletEntry | null>(null)
+  const [fundWalletTarget, setFundWalletTarget] = useState<WalletEntry | null>(null)
 
   const handleSetDefault = async (w: WalletEntry) => {
     setSettingDefault(w.id)
@@ -330,6 +349,8 @@ export default function WalletsPage() {
                             onSetDefault={handleSetDefault}
                             onExport={setExportWalletTarget}
                             onRemove={setRemoveWalletTarget}
+                            onFund={setFundWalletTarget}
+                            isTestLike={isTestLike}
                             settingDefault={settingDefault}
                           />
                         </TableCell>
@@ -374,6 +395,13 @@ export default function WalletsPage() {
           open={true}
           onOpenChange={(open) => { if (!open) setRemoveWalletTarget(null) }}
           onConfirm={handleRemoveWallet}
+        />
+      )}
+      {fundWalletTarget && (
+        <WalletFundDialog
+          wallet={fundWalletTarget}
+          open={true}
+          onOpenChange={(open) => { if (!open) setFundWalletTarget(null) }}
         />
       )}
     </div>

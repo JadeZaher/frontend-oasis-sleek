@@ -5,9 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
+import { ChainSwitcher } from '@/components/shared/chain-switcher'
 import { JsonViewer } from '@/components/shared/json-viewer'
 import { ResultDisplay } from '@/components/shared/result-display'
 import { oasis, isOk } from '@/lib/oasis'
@@ -296,6 +296,8 @@ function SwapChainForm({ chain }: { chain: string }) {
 }
 
 export default function SwapPage() {
+  const [selectedChain, setSelectedChain] = useState<'algorand' | 'solana'>('algorand')
+
   return (
     <div className="space-y-6">
       <div>
@@ -305,18 +307,18 @@ export default function SwapPage() {
         </p>
       </div>
 
-      <Tabs defaultValue="algorand">
-        <TabsList>
-          <TabsTrigger value="algorand">Algorand</TabsTrigger>
-          <TabsTrigger value="solana">Solana</TabsTrigger>
-        </TabsList>
-        <TabsContent value="algorand" className="mt-4">
-          <SwapChainForm chain="algorand" />
-        </TabsContent>
-        <TabsContent value="solana" className="mt-4">
-          <SwapChainForm chain="solana" />
-        </TabsContent>
-      </Tabs>
+      <ChainSwitcher
+        options={[
+          { value: 'algorand', label: 'Algorand' },
+          { value: 'solana', label: 'Solana' },
+        ]}
+        value={selectedChain}
+        onChange={(v) => setSelectedChain(v as 'algorand' | 'solana')}
+      />
+
+      <div className="mt-4">
+        <SwapChainForm chain={selectedChain} />
+      </div>
     </div>
   )
 }

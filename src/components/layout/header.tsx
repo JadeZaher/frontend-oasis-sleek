@@ -10,22 +10,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import { LogOut } from 'lucide-react'
 import { MobileSidebar } from './sidebar'
+import { NetworkSwitcher } from '@/components/network-switcher'
+import { DebugSwitcher } from '@/components/debug-switcher'
 
-interface HeaderProps {
-  chain: string
-  onChainChange: (chain: string) => void
-}
+interface HeaderProps {}
 
-export function Header({ chain, onChainChange }: HeaderProps) {
+export function Header() {
   const { user, logout, defaultWallet } = useOasis()
 
   const initials = user?.username
@@ -38,15 +30,9 @@ export function Header({ chain, onChainChange }: HeaderProps) {
 
       <div className="flex-1" />
 
-      <Select value={chain} onValueChange={(v) => { if (v) onChainChange(v) }}>
-        <SelectTrigger className="h-7 w-[130px] text-xs">
-          <SelectValue placeholder="Chain" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="algorand">Algorand</SelectItem>
-          <SelectItem value="solana">Solana</SelectItem>
-        </SelectContent>
-      </Select>
+      <DebugSwitcher />
+
+      <NetworkSwitcher />
 
       <DropdownMenu>
         <DropdownMenuTrigger className="flex items-center gap-2 rounded-md px-2 py-1 text-sm hover:bg-accent transition-colors">

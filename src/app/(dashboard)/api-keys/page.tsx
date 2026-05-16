@@ -114,7 +114,7 @@ function CreateKeyForm({ onCreated }: { onCreated: (key: CreateApiKeyResponse) =
     if (expiresInDays.trim()) body.expiresInDays = parseInt(expiresInDays, 10)
     if (scopes.trim()) body.scopes = scopes.split(',').map((s) => s.trim()).filter(Boolean)
 
-    const res = await oasis.api.request<CreateApiKeyResponse>('POST', '/api/apikey', body)
+    const res = await oasis.api.request('POST', '/api/apikey', body)
 
     if (isOk(res)) {
       onCreated(res.value)
@@ -262,7 +262,7 @@ function KeyList({ keys, onRefresh }: { keys: ApiKeyInfo[]; loading: boolean; on
 
   const handleRevoke = async (id: string) => {
     setError(null)
-    const res = await oasis.api.request<unknown>('POST', `/api/apikey/${id}/revoke`)
+    const res = await oasis.api.request('POST', `/api/apikey/${id}/revoke`)
     if (isOk(res)) {
       onRefresh()
     } else {
@@ -272,7 +272,7 @@ function KeyList({ keys, onRefresh }: { keys: ApiKeyInfo[]; loading: boolean; on
 
   const handleDelete = async (id: string) => {
     setError(null)
-    const res = await oasis.api.request<unknown>('DELETE', `/api/apikey/${id}`)
+    const res = await oasis.api.request('DELETE', `/api/apikey/${id}`)
     if (isOk(res)) {
       onRefresh()
     } else {
@@ -385,7 +385,7 @@ export default function ApiKeysPage() {
   const fetchKeys = useCallback(async () => {
     setLoading(true)
     setError(null)
-    const res = await oasis.api.request<ApiKeyInfo[]>('GET', '/api/apikey')
+    const res = await oasis.api.request('GET', '/api/apikey')
     if (isOk(res)) {
       setKeys(res.value)
     } else {
