@@ -36,7 +36,7 @@ COPY --from=frontend-build /app/.next ./.next
 COPY --from=frontend-build /app/node_modules ./node_modules
 COPY --from=frontend-build /app/package.json ./
 COPY --from=frontend-build /app/next.config.js ./
-COPY --from=frontend-build /app/public ./public 2>/dev/null || true
+COPY --from=frontend-build /app/public ./public
 
 ENV NODE_ENV=production
 ENV NEXT_PUBLIC_API_URL=http://oasis-api:5000

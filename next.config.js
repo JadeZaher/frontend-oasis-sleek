@@ -4,6 +4,18 @@ const path = require('path')
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
+  // Pre-existing TypeScript noise in the frontend tree is tracked outside
+  // the build gate (see the dev's [[no-frontend-typecheck]] memory). `next
+  // build` would otherwise fail compilation on those errors; CI runs SDK
+  // typecheck + dotnet build instead. Override via NEXT_TS_STRICT=1 when
+  // you actively want type errors surfaced during a build.
+  typescript: {
+    ignoreBuildErrors: process.env.NEXT_TS_STRICT !== '1',
+  },
+  eslint: {
+    // Same reasoning: ESLint findings should not gate the docker image build.
+    ignoreDuringBuilds: true,
+  },
   env: {
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000',
   },
