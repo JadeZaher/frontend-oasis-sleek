@@ -31,11 +31,13 @@ interface SwapQuote {
   expectedAmountOut: string
   priceImpact: number
   fee: string
-  route?: Array<{ dex: string; tokenIn: string; tokenOut: string; amountIn: string; amountOut: string }>
+  route?: unknown
   amountIn: string
   tokenIn: string
   tokenOut: string
   chain: string
+  /** Returned by the backend (Jupiter v2) — required to execute the swap. */
+  quoteId?: string
 }
 
 function SwapChainForm({ chain }: { chain: string }) {
@@ -64,16 +66,19 @@ function SwapChainForm({ chain }: { chain: string }) {
     setUnsignedTx(null)
     setLoadingQuote(true)
     try {
-      const backendResp = await oasis.api.request('GET', `/api/swap/quote?chain=${chain}&tokenIn=${form.tokenIn}&tokenOut=${form.tokenOut}&amountIn=${form.amount}&slippageBps=${form.slippageBps}`);
-      const result = isOk(backendResp) 
-        ? { ok: true, value: backendResp.value?.result ?? backendResp.value }
-        : backendResp;
+      const result = await oasis.api.getSwapQuote({
+        chain,
+        tokenIn: form.tokenIn,
+        tokenOut: form.tokenOut,
+        amountIn: form.amount,
+        slippageBps: form.slippageBps,
+        walletAddress: form.sender || undefined,
+      })
       if (isOk(result)) {
-        const val = result.value as unknown as SwapQuote
-        setQuote(val)
+        setQuote(result.value as SwapQuote)
         setRawQuote(result.value)
       } else {
-        setError((result as { error: { message: string } }).error.message)
+        setError(result.error.message)
       }
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Unknown error')
@@ -84,24 +89,35 @@ function SwapChainForm({ chain }: { chain: string }) {
 
   const handleBuildSwap = async () => {
     if (!quote) return
+    if (!quote.quoteId) {
+      setError('Quote is missing quoteId — cannot execute swap. (Backend did not return a quoteId for this chain.)')
+      return
+    }
+    if (!form.sender) {
+      setError('Sender wallet address is required to build the swap transaction.')
+      return
+    }
     setError(null)
     setLoadingBuild(true)
     try {
-      // Backend proxy doesn't build unsigned tx yet (add /swap/build endpoint later)
-      // For demo: mock UnsignedTransaction
-      const result = {
-        ok: true,
-        value: {
-          chain,
-          format: 'quote' as const,
-          quote: rawQuote,
-          description: `Backend swap quote: ${form.amount} → expected ${quote?.expectedAmountOut ?? 'N/A'}`
-        }
-      } as any
+      const result = await oasis.api.executeSwap({
+        chain,
+        quoteId: quote.quoteId,
+        walletAddress: form.sender,
+      })
       if (isOk(result)) {
-        setUnsignedTx(result.value)
+        const resp = result.value
+        setUnsignedTx({
+          chain,
+          format: 'native' as const,
+          swapTransaction: resp.swapTransaction,
+          quoteId: resp.quoteId,
+          lastValidBlockHeight: resp.lastValidBlockHeight,
+          message: resp.message,
+          description: `Unsigned swap: ${form.amount} ${form.tokenIn} → expected ${resp.expectedAmountOut ?? quote.expectedAmountOut}`,
+        })
       } else {
-        setError((result as { error: { message: string } }).error.message)
+        setError(result.error.message)
       }
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Unknown error')
@@ -242,13 +258,13 @@ function SwapChainForm({ chain }: { chain: string }) {
                 <span className="text-muted-foreground">Fee</span>
                 <span className="font-mono">{quote.fee ?? '—'}</span>
               </div>
-              {quote.route && Array.isArray(quote.route) && quote.route.length > 0 && (
+              {Array.isArray(quote.route) && quote.route.length > 0 && (
                 <>
                   <Separator />
                   <div>
                     <p className="text-muted-foreground mb-1">Route Steps</p>
                     <div className="flex flex-wrap gap-1">
-                      {quote.route.map((step, i) => (
+                      {(quote.route as unknown[]).map((step, i) => (
                         <Badge key={i} variant="secondary" className="font-mono text-xs">
                           {typeof step === 'string' ? step : JSON.stringify(step)}
                         </Badge>

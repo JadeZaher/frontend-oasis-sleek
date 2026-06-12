@@ -129,9 +129,7 @@ export function useWallets(avatarId: string | null) {
     if (!avatarId) return
     setLoading(true)
     setError(null)
-    const result = await oasis.api.request<Array<{ id: string; chainType: string; address: string; label?: string; isDefault: boolean }>>(
-      "GET", `/api/wallet?avatarId=${avatarId}`
-    )
+    const result = await oasis.api.listWallets({ avatarId })
     if (isOk(result)) {
       setWallets(result.value)
     } else {

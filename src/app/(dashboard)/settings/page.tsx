@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
@@ -40,10 +39,9 @@ export default function SettingsPage() {
 
   const handleClearSession = async () => { await oasis.auth.logout(); await logout() }
 
-  const chains = oasis.wallet?.chains ?? {}
-  const chainNames = Object.keys(chains)
+  const chainNames = oasis.wallet.chains
   const sessionState = { avatarId, isAuthenticated, user, tokenMasked: maskToken(token) }
-  const apiBaseUrl = (oasis as unknown as { config?: { apiUrl?: string } }).config?.apiUrl ?? process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:5000'
+  const apiBaseUrl = oasis.getApiUrl()
   const rpcUrls: Record<string, string> = {
     algorand: process.env.NEXT_PUBLIC_ALGO_RPC ?? 'https://testnet-api.algonode.cloud',
     solana: process.env.NEXT_PUBLIC_SOL_RPC ?? 'https://api.devnet.solana.com',
